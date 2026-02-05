@@ -14,7 +14,27 @@ class ApiController extends Controller
 
     public function products(Request $request)
     {
-        $products = Product::latest()->paginate(9);
+        $products = Product::query()->with('keywords');
+
+        if ($request->filled('gender') && $request->gender !== 'All') {
+            $products->where('gender', $request->gender);
+        }
+
+        if ($request->filled('query')) {
+            $search = trim($request->get('query'));
+
+            $products->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('article', 'LIKE', "%{$search}%")
+                  ->orWhereHas('keywords', function ($q2) use ($search) {
+                      $q2->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        $products = $products->latest()
+                                ->paginate(10)
+                                ->withQueryString();
 
         if ($request->ajax()) {
             return view('partials.product-cards', compact('products'))->render();

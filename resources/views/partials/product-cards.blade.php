@@ -1,5 +1,5 @@
 @foreach($products as $product)
-    <div class="col-md-4 mb-4 card-item">
+    <div id="product_{{$product->id}}" product-id="{{$product->id}}}" class="col-md-4 mb-4 card-item">
         <div class="card h-100 shadow-sm">
             <img src="{{ $product->image_url }}"
                  class="card-img-top"
@@ -8,10 +8,20 @@
 
             <div class="card-body">
                 <h5 class="card-title">{{ $product->name }}</h5>
-
-                <p class="small">
-                    <strong>Артикул:</strong> {{ $product->article ?? 'не указан' }}
+                <p class="card-text small">
+                    <span><strong>{{__('messages.article')}}:</strong> {{ $product->article ?? '' }}</span><br/>
+                    <span><strong>{{__('messages.gender')}}:</strong> {{ $product->gender ? __('messages.'.$product->gender): '' }}</span>
                 </p>
+                <p class="card-text">
+                    @if($product->keywords->count() > 0)
+                        @foreach($product->keywords as $keyword)
+                            <span class="badge bg-secondary">{{ $keyword->name }}</span>
+                        @endforeach
+                    @endif
+                </p>
+            </div>
+            <div class="card-body">
+                <button type="button" product-id="{{$product->id}}}" class="product-add float-end btn btn-outline-success"><i class="fa fa-plus"></i>{{__('messages.add')}}</button>
             </div>
         </div>
     </div>

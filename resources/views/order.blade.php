@@ -5,7 +5,7 @@
     <div class="row mb-5">
         <div class="col-md-12">
             <div class="row">
-                <div class="col-xs-5 col-md-7">
+                <div class="col-xs-5 col-md-9">
                     <input type="text"
                            id="query"
                            name="query"
@@ -13,16 +13,13 @@
                            placeholder="{{__('messages.search_params')}}"
                            value="{{ request('query') }}">
                 </div>
-                <div class="col-xs-5 col-md-3">
-                    <select id="sex" class="mb-3 form-control">
-                        <option></option>
+                <div class="col-xs-7 col-md-3">
+                    <select id="gender" class="mb-3 form-control">
+                        <option>{{__('messages.all')}}</option>
                         <option value="male">{{__('messages.male')}}</option>
                         <option value="female">{{__('messages.female')}}</option>
                         <option value="unisex">{{__('messages.unisex')}}</option>
                     </select>
-                </div>
-                <div class="col-xs-2 col-md-2">
-                    <button style="width:100%" class="btn btn-dark btn-block">{{__('messages.search')}}</button>
                 </div>
             </div>
         </div>
@@ -34,6 +31,16 @@
         <span>Загрузка...</span>
     </div>
 </div>
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <h5>Выберите 3 парьфюм для бокса</h5>
+        </div>
+        <div class="row">
+            <button class="btn btn-success">Выбрать</button>
+        </div>
+    </div>
+</footer>
 @endsection
 
 @section('scripts')
@@ -51,11 +58,11 @@ function loadProducts() {
     $('#loader').show();
 
     var query = $("#query").val();
-    var sex = $("#sex").val();
+    var gender = $("#gender").val();
 
     $.ajax({
         url: "{{ route('apiProducts') }}",
-        data: { page: page, query: query, sex: sex },
+        data: { page: page, query: query, gender: gender },
         success: function (data) {
             if (data.trim() === '') {
                 lastPage = true;
@@ -76,6 +83,22 @@ function loadProducts() {
     });
 }
 
+$("#app").on("change", "#gender", function () {
+    page = 1;
+    loading = false;
+    lastPage = false;
+    $("#product-table").html("");
+    loadProducts();
+});
+
+$("#app").on("keyup", "#query", function () {
+    page = 1;
+    loading = false;
+    lastPage = false;
+    $("#product-table").html("");
+    loadProducts();
+});
+
 // первая загрузка
 loadProducts();
 
@@ -90,6 +113,18 @@ $(window).on('scroll', function () {
 
 @section('style')
 <style>
+ .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 150px;
+    background-color: #ffffff;
+    border-top: 1px solid #f0f0f0;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+ }
+
 .good-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

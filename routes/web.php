@@ -17,6 +17,7 @@ Route::get('/', function () {
 });
 
 Route::get('/order/{orderId}', [OrderController::class, 'order'] );
+Route::get('/order-finish/{orderId}', [OrderController::class, 'orderFinish'])->name('orderFinish');
 
 
 //Auth::routes();

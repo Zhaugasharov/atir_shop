@@ -37,9 +37,6 @@
                 </div>
             </nav>
             @yield('content')
-            <footer>
-
-            </footer>
         </div>
 
 

@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Models\Product;
 use App\Models\KeyWord;
+use App\Models\Order;
 use App\Models\ProductKeyWord;
 
 class HomeController extends Controller
@@ -75,9 +76,19 @@ class HomeController extends Controller
         return view('home', $data);
     }
 
-    public function order($order) {
+    public function order(Request $request) {
         $data = [];
+        $orderModel = Order::query();
 
+        if ($request->filled('query')) {
+            $orderModel->where('order_id', 'like', '%' . $request->query . '%')
+                        ->orWhere('phone', 'like', '%' . $request->query . '%');
+        }
+
+        if ($request->filled('status'))
+            $orderModel->where('status', $request->status);
+
+        $data['orders'] = $orderModel->paginate(20);
         return view('orders', $data);
     }
 
