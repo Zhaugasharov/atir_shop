@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Auth\LoginController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,7 +19,11 @@ Route::get('/', function () {
 Route::get('/order/{orderId}', [OrderController::class, 'order'] );
 
 
-Auth::routes();
+//Auth::routes();
+
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/orders', 'HomeController@order')->name('orders');
