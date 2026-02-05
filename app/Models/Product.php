@@ -3,12 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model {
+
+    use SoftDeletes; // <-- Добавляем трейт
 
     protected $table = 'product';
 
     protected $fillable = ['name', 'article', 'image', 'gender'];
+
+    protected $dates = ['deleted_at'];
 
     public function keywords()
     {

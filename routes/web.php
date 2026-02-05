@@ -30,6 +30,7 @@ Route::get('/orders', 'HomeController@order')->name('orders');
 
 Route::post('/save-product', 'HomeController@saveProduct')->name('saveProduct');
 Route::post('/save-products', 'HomeController@saveProducts')->name('saveProducts');
+Route::delete('/delete-product/{id}', 'HomeController@deleteProduct')->name('deleteProduct');
 
 Route::prefix('api')->group(function(){
     Route::get('/get-key-words', 'ApiController@getKeyWords')->name('apiGetKeyWords');

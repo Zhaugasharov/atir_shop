@@ -24,6 +24,22 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    public function deleteProduct($id)
+    {
+        // Найти товар по ID
+        $product = Product::find($id);
+
+        if (!$product) {
+            // Если товар не найден, можно вернуть с ошибкой
+            return redirect()->back()->with('error', 'Товар не найден!');
+        }
+
+        // Удаляем товар
+        $product->delete();
+
+        return redirect()->back()->with('success', 'Товар успешно удален!');
+    }
+
     /**
      * Show the application dashboard.
      *

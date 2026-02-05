@@ -164,13 +164,24 @@
                                                  style="height:220px; object-fit:cover"
                                                  alt="{{ $product->name }}">
 
-                                            <div class="card-body">
-                                                <button class="btn btn-sm btn-outline-primary mb-3 edit-product-btn"
-                                                        data-toggle="modal"
-                                                        data-target="#productModal"
-                                                        data-product='@json($product)'>
-                                                    ✏️ Редактировать
-                                                </button>
+                                            <div class="card-body d-flex flex-column">
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <button class="btn btn-sm btn-outline-primary edit-product-btn"
+                                                            data-toggle="modal"
+                                                            data-target="#productModal"
+                                                            data-product='@json($product)'>
+                                                        ✏️ Редактировать
+                                                    </button>
+
+                                                    <!-- Крестик для удаления -->
+                                                    <form method="POST"
+                                                          action="{{ route('deleteProduct', $product->id) }}"
+                                                          onsubmit="return confirm('Вы действительно хотите удалить этот товар?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">&times;</button>
+                                                    </form>
+                                                </div>
 
                                                 <h5 class="card-title">{{ $product->name }}</h5>
 
