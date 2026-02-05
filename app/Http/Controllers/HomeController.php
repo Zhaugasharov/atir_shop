@@ -75,7 +75,7 @@ class HomeController extends Controller
         return view('home', $data);
     }
 
-    public function order() {
+    public function order($order) {
         $data = [];
 
         return view('orders', $data);

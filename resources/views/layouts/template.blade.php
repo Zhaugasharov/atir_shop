@@ -10,15 +10,38 @@
 
         {{-- Optionally: Bootstrap Icons --}}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         {{-- Your custom CSS --}}
         <style>
             .cursor-pointer { cursor: pointer; }
         </style>
+
+        @yield('style')
+
     </head>
     <body>
+        <div id="app">
+            <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+                <div class="container">
+                    <a class="navbar-brand" href="{{ url('/') }}">
+                        <img src="{{asset('logo.png')}}" width="150" height="150" alt="">
+                    </a>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">KK</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">RU</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            @yield('content')
+            <footer>
 
-        @yield('content')
+            </footer>
+        </div>
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" ></script>
 

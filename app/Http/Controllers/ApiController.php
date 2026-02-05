@@ -3,21 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class ApiController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function getKeyWords() {
 
+    }
+
+    public function products(Request $request)
+    {
+        $products = Product::latest()->paginate(9);
+
+        if ($request->ajax()) {
+            return view('partials.product-cards', compact('products'))->render();
+        }
+
+        return view('products', compact('products'));
     }
 
 }

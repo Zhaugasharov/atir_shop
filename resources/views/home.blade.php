@@ -9,11 +9,13 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="list-group list-group-flush">
-                                <a href="#" class="list-group-item list-group-item-action selected">Товары</a>
+                                <a href="{{url('home')}}" class="list-group-item list-group-item-action selected">Товары</a>
                                 <a href="{{url('orders')}}" class="list-group-item list-group-item-action">Заказы</a>
                             </div>
                         </div>
                         <div class="col-md-9">
+                            <h4>Товары</h4>
+                            <hr class="my-4" style="border-top:1px solid #e0e0e0;">
                             <a href="{{asset('example.xlsx')}}">Пример файла</a>
                             <form action="{{route('saveProducts')}}" method="POST" enctype="multipart/form-data" class="d-inline">
                                 @csrf
