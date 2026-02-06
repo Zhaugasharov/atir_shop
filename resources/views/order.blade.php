@@ -51,6 +51,14 @@ let page = 1;
 let loading = false;
 let lastPage = false;
 
+$.ajaxSetup({
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+        'Accept-Language': document.documentElement.lang // Добавьте это
+    }
+});
+
 function loadProducts() {
     if (loading || lastPage) return;
 
@@ -61,7 +69,7 @@ function loadProducts() {
     var gender = $("#gender").val();
 
     $.ajax({
-        url: "{{ route('apiProducts') }}",
+        url: "{{ url('/api/products') }}",
         data: { page: page, query: query, gender: gender },
         success: function (data) {
             if (data.trim() === '') {

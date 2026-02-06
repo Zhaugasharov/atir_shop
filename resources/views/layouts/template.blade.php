@@ -28,12 +28,19 @@
                     </a>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">KK</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">RU</a>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    {{ strtoupper(app()->getLocale()) }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'ru') }}">Русский</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'en') }}">English</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'kz') }}">Қазақша</a></li>
+                                </ul>
+                            </div>
                         </li>
                     </ul>
+
                 </div>
             </nav>
             @yield('content')

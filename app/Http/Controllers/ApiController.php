@@ -15,8 +15,9 @@ class ApiController extends Controller
     public function products(Request $request)
     {
         $products = Product::query()->with('keywords');
+        $gender = $request->get('gender', '');
 
-        if ($request->filled('gender') && $request->gender !== 'All') {
+        if (in_array($gender, ['male', 'female', 'unisex'])) {
             $products->where('gender', $request->gender);
         }
 

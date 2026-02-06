@@ -1,6 +1,9 @@
 <?php
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\LocaleController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,9 +19,10 @@ Route::get('/', function () {
     return redirect('/test');
 });
 
+Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
+
 Route::get('/order/{orderId}', [OrderController::class, 'order'] );
 Route::get('/order-finish/{orderId}', [OrderController::class, 'orderFinish'])->name('orderFinish');
-
 
 //Auth::routes();
 
@@ -32,7 +36,3 @@ Route::get('/orders', 'HomeController@order')->name('orders');
 Route::post('/save-product', 'HomeController@saveProduct')->name('saveProduct');
 Route::post('/save-products', 'HomeController@saveProducts')->name('saveProducts');
 Route::delete('/delete-product/{id}', 'HomeController@deleteProduct')->name('deleteProduct');
-
-Route::prefix('api')->group(function(){
-    Route::get('/get-key-words', 'ApiController@getKeyWords')->name('apiGetKeyWords');
-});
