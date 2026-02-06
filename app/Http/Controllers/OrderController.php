@@ -8,6 +8,12 @@ use App\Models\Order;
 
 class OrderController extends Controller {
 
+    function index() {
+        $data = [];
+
+        return view('index', $data);
+    }
+
     function order($orderId) {
         $data = [];
         $orderModel = Order::where('order_id', $orderId)->first();

@@ -14,6 +14,7 @@ class ApiController extends Controller
 
     public function products(Request $request)
     {
+        $data = [];
         $products = Product::query()->with('keywords');
         $gender = $request->get('gender', '');
 
@@ -33,7 +34,10 @@ class ApiController extends Controller
             });
         }
 
-        $products = $products->latest()
+        if(!empty($request->get('homePage')))
+            $data['homePage'] = 1;
+
+        $data['products'] = $products->latest()
                                 ->paginate(10)
                                 ->withQueryString();
 
@@ -43,10 +47,10 @@ class ApiController extends Controller
             if(in_array($locale, ['ru', 'kk', 'en']))
                 app()->setLocale($locale);
 
-            return view('partials.product-cards', compact('products'))->render();
+            return view('partials.product-cards', $data)->render();
         }
 
-        return view('products', compact('products'));
+        return view('products', $data);
     }
 
 }

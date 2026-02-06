@@ -15,12 +15,9 @@ use App\Http\Controllers\LocaleController;
 |
 */
 
-Route::get('/', function () {
-    return redirect('/test');
-});
+Route::get('/', [OrderController::class, 'index'])->name('index');
 
 Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
-
 Route::get('/order/{orderId}', [OrderController::class, 'order'] );
 Route::post('/save-order/{orderId}', [OrderController::class, 'saveOrder'] )->name('saveOrder');
 Route::get('/order-finish/{orderId}', [OrderController::class, 'orderFinish'])->name('orderFinish');

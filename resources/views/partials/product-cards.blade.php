@@ -21,7 +21,11 @@
                 </p>
             </div>
             <div class="card-body">
-                <button type="button" product-id="{{$product->id}}" class="product-add float-end btn btn-outline-success"><i class="fa fa-plus"></i>{{__('messages.select')}}</button>
+                @if(empty($homePage))
+                    <button type="button" product-id="{{$product->id}}" class="product-add float-end btn btn-outline-success"><i class="fa fa-plus"></i>{{__('messages.select')}}</button>
+                @else
+                    <a style="width: 150px" class="btn btn-danger" href="https://kaspi.kz/shop/p/c-{{ $product->article ?? '' }}" target="_blank">Kaspi</a>
+                @endif
             </div>
         </div>
     </div>
