@@ -79,7 +79,7 @@
 <footer class="footer">
     <div class="container pt-2">
         <div class="row">
-            <h5>Выберите 3 парьфюма</h5>
+            <h5>{{__('messages.selectTT')}}</h5>
         </div>
         <div class="row mt-3">
             <div class="col-md-12">
@@ -88,6 +88,7 @@
                  <span id="product-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
                </button>
                 <form id="saveOrderForm" style="display: none" class="float-end" action="{{route('saveOrder', ['orderId' => $orderId])}}" method="POST">
+                    @csrf
                     <input id="product_input_1" name="product_1" type="hidden" value=""/>
                     <input id="product_input_2" name="product_2" type="hidden" value=""/>
                     <input id="product_input_3" name="product_3" type="hidden" value=""/>
@@ -154,6 +155,9 @@ $(".product-remove").click(function(){
     let product = $(this).attr('data');
     selectedProducts['product' + product] = 0;
     $("#selected_pr_" + product).hide();
+    $("#product_input_1").val('');
+    $("#product_input_2").val('');
+    $("#product_input_3").val('');
     checkReady();
     minus();
 });

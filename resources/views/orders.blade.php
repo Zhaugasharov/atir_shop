@@ -57,16 +57,22 @@
                                             <td>{{$order->phone}}</td>
                                             <td>{{$order->getStatus()}}</td>
                                             <td width="250px">
-                                                <p>{{$order->product1->name}}</p>
-                                                <img width="100%" src="{{$order->product1->image_url}}" />
+                                                @if(!empty($order->product1->name))
+                                                    <p>{{$order->product1->name}}</p>
+                                                    <img width="100%" src="{{$order->product1->image_url}}" />
+                                                @endif
                                             </td>
                                             <td width="250px">
-                                                <p>{{$order->product2->name}}</p>
-                                                <img width="100%" src="{{$order->product2->image_url}}" />
+                                                @if(!empty($order->product2->name))
+                                                    <p>{{$order->product2->name}}</p>
+                                                    <img width="100%" src="{{$order->product2->image_url}}" />
+                                                @endif
                                             </td>
                                             <td width="250px">
-                                                <p>{{$order->product3->name}}</p>
-                                                <img width="100%" src="{{$order->product3->image_url}}" />
+                                                @if(!empty($order->product3->name))
+                                                    <p>{{$order->product3->name}}</p>
+                                                    <img width="100%" src="{{$order->product3->image_url}}" />
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

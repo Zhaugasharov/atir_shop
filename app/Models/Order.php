@@ -8,7 +8,7 @@ class Order extends Model {
 
     protected $table = 'orders';
 
-    protected $fillable = ['order_id', 'phone', 'product_id_1', 'product_id_2', 'product_id_3'];
+    protected $fillable = ['order_id', 'phone', 'status', 'product_id_1', 'product_id_2', 'product_id_3'];
 
     const STATUS = [
         1 => 'Новый',
