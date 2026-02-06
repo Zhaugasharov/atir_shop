@@ -38,6 +38,11 @@ class ApiController extends Controller
                                 ->withQueryString();
 
         if ($request->ajax()) {
+            $locale = $request->get('locale', '');
+
+            if(in_array($locale, ['ru', 'kk', 'en']))
+                app()->setLocale($locale);
+
             return view('partials.product-cards', compact('products'))->render();
         }
 

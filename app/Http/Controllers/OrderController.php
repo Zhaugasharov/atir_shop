@@ -16,7 +16,13 @@ class OrderController extends Controller {
                 return redirect()->route('orderFinish', ['orderId' => $orderModel->order_id]);
         }
 
+        $data['orderId'] = $orderId;
+
         return view('order', $data);
+    }
+
+    public function saveOrder($orderId) {
+
     }
 
     public function orderFinish($orderId) {

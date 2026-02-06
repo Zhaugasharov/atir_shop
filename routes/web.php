@@ -22,6 +22,7 @@ Route::get('/', function () {
 Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
 
 Route::get('/order/{orderId}', [OrderController::class, 'order'] );
+Route::get('/save-order/{orderId}', [OrderController::class, 'order'] )->name('saveOrder');
 Route::get('/order-finish/{orderId}', [OrderController::class, 'orderFinish'])->name('orderFinish');
 
 //Auth::routes();
