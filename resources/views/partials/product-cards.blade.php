@@ -7,9 +7,7 @@
                     <span class="product-card__new-flag">{{__('messages.novelties')}}</span>
                 @endif
                 <span class="product-card__badge">{{ $product->article ?? '' }}</span>
-                @if($product->quality)
-                    <span class="product-card__type">{{ $product->quality == 'premium' ? __('messages.premium') : __('messages.top') }}</span>
-                @elseif($product->gender)
+                @if($product->gender)
                     <span class="product-card__type">{{ __('messages.'.$product->gender) }}</span>
                 @endif
             </div>

@@ -92,14 +92,6 @@
                                             </div>
 
                                             <div class="form-row">
-                                                <div class="form-group col-md-6">
-                                                    <label>Качество</label>
-                                                    <select name="quality" class="form-control" id="productQuality">
-                                                        <option value="">-- Не выбрано --</option>
-                                                        <option value="premium" {{ old('quality') == 'premium' ? 'selected' : '' }}>Премиум парфюм</option>
-                                                        <option value="top" {{ old('quality') == 'top' ? 'selected' : '' }}>Топ парфюм</option>
-                                                    </select>
-                                                </div>
                                                 <div class="form-group col-md-6 d-flex align-items-end">
                                                     <div class="custom-control custom-checkbox mb-2">
                                                         <input type="checkbox" class="custom-control-input" id="productIsNew" name="is_new" value="1" {{ old('is_new') ? 'checked' : '' }}>
@@ -259,13 +251,6 @@
 
                                                 @if($product->brand)
                                                     <p class="small"><strong>Бренд:</strong> {{ $product->brand->name }}</p>
-                                                @endif
-
-                                                @if($product->quality)
-                                                    <p class="small">
-                                                        <strong>Качество:</strong>
-                                                        {{ $product->quality == 'premium' ? 'Премиум парфюм' : 'Топ парфюм' }}
-                                                    </p>
                                                 @endif
 
                                                 @if($product->is_new)
@@ -492,15 +477,14 @@ $(document).ready(function() {
         $('#productSku').val(product.article || '');
         $('#productGender').val(product.gender);
         $('#productBrand').val(product.brand_id || '');
-        $('#productQuality').val(product.quality || '');
         $('#productIsNew').prop('checked', !!product.is_new);
         $('#modalTitle').text('Редактировать товар');
 
         const currentImageDiv = $('#currentImage');
-        if (product.image) {
+        if (product.image_url) {
             currentImageDiv.html(
                 '<strong>Текущее изображение:</strong><br>' +
-                '<img src="' + product.image + '" class="img-thumbnail mt-1" style="max-height:100px;">'
+                '<img src="' + product.image_url + '" class="img-thumbnail mt-1" style="max-height:100px;">'
             );
         } else {
             currentImageDiv.html('<strong>Нет изображения</strong>');
@@ -522,7 +506,6 @@ $(document).ready(function() {
         $('#productName').val('');
         $('#productSku').val('');
         $('#productBrand').val('');
-        $('#productQuality').val('');
         $('#productIsNew').prop('checked', false);
         $('#modalTitle').text('Добавить товар');
         $('#currentImage').empty();

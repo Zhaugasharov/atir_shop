@@ -84,18 +84,6 @@ class ApiController extends Controller
             $products->where('brand_id', $request->get('brand_id'));
         }
 
-        if ($request->filled('quality')) {
-            $qualities = array_intersect(
-                explode(',', $request->get('quality')),
-                ['premium', 'top']
-            );
-            if (count($qualities) === 1) {
-                $products->where('quality', reset($qualities));
-            } elseif (count($qualities) > 1) {
-                $products->whereIn('quality', $qualities);
-            }
-        }
-
         if ($request->filled('is_new') && $request->get('is_new') == '1') {
             $products->where('is_new', true);
         }

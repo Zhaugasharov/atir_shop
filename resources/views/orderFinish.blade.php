@@ -23,9 +23,7 @@
                     @if($product->article)
                         <span class="finish-card__article">{{ $product->article }}</span>
                     @endif
-                    @if($product->quality)
-                        <span class="finish-card__quality">{{ $product->quality == 'premium' ? __('messages.premium') : __('messages.top') }}</span>
-                    @elseif($product->gender)
+                    @if($product->gender)
                         <span class="finish-card__quality">{{ __('messages.'.$product->gender) }}</span>
                     @endif
                 </div>

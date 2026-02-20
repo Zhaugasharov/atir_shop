@@ -72,13 +72,6 @@
             </div>
         </div>
         <div class="filter-group">
-            <label class="filter-group__label">{{__('messages.quality_label')}}</label>
-            <div class="filter-chips" id="filterQualityChips">
-                <button type="button" class="filter-chip" data-value="premium">{{__('messages.premium')}}</button>
-                <button type="button" class="filter-chip" data-value="top">{{__('messages.top')}}</button>
-            </div>
-        </div>
-        <div class="filter-group">
             <label class="filter-group__label">{{__('messages.novelties')}}</label>
             <label class="filter-toggle">
                 <input type="checkbox" id="filterIsNew">
@@ -165,7 +158,6 @@ let selectedProducts = {
 let activeFilters = {
     gender: '',
     brand_id: '',
-    quality: '',
     is_new: ''
 };
 
@@ -205,13 +197,6 @@ $('#applyFilters').on('click', function() {
     });
     activeFilters.gender = genderValues.join(',');
     activeFilters.brand_id = $('#filterBrand').val();
-
-    var qualityValues = [];
-    $('#filterQualityChips .filter-chip.active').each(function() {
-        qualityValues.push($(this).data('value'));
-    });
-    activeFilters.quality = qualityValues.join(',');
-
     activeFilters.is_new = $('#filterIsNew').is(':checked') ? '1' : '';
 
     $('#filterPanel').removeClass('active');
@@ -226,7 +211,7 @@ $('#applyFilters').on('click', function() {
 
 // Reset filters
 $('#resetFilters').on('click', function() {
-    activeFilters = { gender: '', brand_id: '', quality: '', is_new: '' };
+    activeFilters = { gender: '', brand_id: '', is_new: '' };
     $('#filterBrand').val('');
     $('.filter-chip').removeClass('active');
     $('#filterIsNew').prop('checked', false);
@@ -337,7 +322,6 @@ function loadProducts() {
             query: query,
             gender: activeFilters.gender,
             brand_id: activeFilters.brand_id,
-            quality: activeFilters.quality,
             is_new: activeFilters.is_new,
             locale: document.documentElement.lang
         },

@@ -143,7 +143,6 @@ class HomeController extends Controller
             $genderIndex   = array_search('gender', $header);
             $keywordsIndex = array_search('keywords', $header);
             $brandIndex    = array_search('brand', $header);
-            $qualityIndex  = array_search('quality', $header);
             $isNewIndex    = array_search('is_new', $header);
 
             $success = 0;
@@ -184,12 +183,6 @@ class HomeController extends Controller
                         }
                     }
 
-                    // ---------- КАЧЕСТВО ----------
-                    $quality = null;
-                    if ($qualityIndex !== false) {
-                        $quality = $this->parseQuality($row[$qualityIndex] ?? '');
-                    }
-
                     // ---------- НОВИНКА ----------
                     $isNew = false;
                     if ($isNewIndex !== false) {
@@ -203,7 +196,6 @@ class HomeController extends Controller
                         'article'  => $article ?: null,
                         'gender'   => $gender,
                         'brand_id' => $brandId,
-                        'quality'  => $quality,
                         'is_new'   => $isNew,
                     ]);
 
@@ -567,31 +559,6 @@ class HomeController extends Controller
     }
 
     /**
-     * Парсит значение качества
-     */
-    private function parseQuality($value)
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        $value = mb_strtolower(trim($value), 'UTF-8');
-
-        $premiumValues = ['premium', 'премиум', 'премиум парфюм', 'пр', 'p'];
-        $topValues = ['top', 'топ', 'топ парфюм', 'т', 't'];
-
-        if (in_array($value, $premiumValues) || mb_strpos($value, 'премиум') !== false) {
-            return 'premium';
-        }
-
-        if (in_array($value, $topValues) || mb_strpos($value, 'топ') !== false) {
-            return 'top';
-        }
-
-        return null;
-    }
-
-    /**
      * Парсит строку ключевых слов
      */
     private function parseKeywords($string)
@@ -672,7 +639,6 @@ class HomeController extends Controller
             'sku' => 'nullable|string|max:100',
             'gender' => 'required|in:male,female,unisex',
             'brand_id' => 'nullable|exists:brands,id',
-            'quality' => 'nullable|in:premium,top',
             'is_new' => 'nullable',
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'cropped_image' => 'nullable|string',
@@ -692,7 +658,6 @@ class HomeController extends Controller
                     'gender' => $request->gender,
                     'article' => $request->sku,
                     'brand_id' => $request->brand_id ?: null,
-                    'quality' => $request->quality ?: null,
                     'is_new' => $request->has('is_new') ? 1 : 0,
                 ]);
             } else {
@@ -701,7 +666,6 @@ class HomeController extends Controller
                     'article' => $request->sku,
                     'gender' => $request->gender,
                     'brand_id' => $request->brand_id ?: null,
-                    'quality' => $request->quality ?: null,
                     'is_new' => $request->has('is_new') ? 1 : 0,
                     'image' => null
                 ]);
@@ -715,23 +679,24 @@ class HomeController extends Controller
                 $imageData = base64_decode($imageData);
 
                 if ($product->image) {
-                    Storage::disk('public')->delete($product->image);
+                    Storage::disk('products')->delete(basename($product->image));
                 }
 
                 $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
-                $filename = 'products/' . uniqid('crop_') . '.' . $extension;
-                Storage::disk('public')->put($filename, $imageData);
-                $product->image = $filename;
+                $filename = uniqid('crop_') . '.' . $extension;
+                Storage::disk('products')->put($filename, $imageData);
+                $product->image = 'products/' . $filename;
                 $product->save();
             }
 
             if (!$hasNewImage && $request->hasFile('image')) {
                 if ($product->image) {
-                    Storage::disk('public')->delete($product->image);
+                    Storage::disk('products')->delete(basename($product->image));
                 }
 
-                $imagePath = $request->file('image')->store('products', 'public');
-                $product->image = $imagePath;
+                $filename = $request->file('image')->hashName();
+                $request->file('image')->storeAs('', $filename, 'products');
+                $product->image = 'products/' . $filename;
                 $product->save();
             }
 

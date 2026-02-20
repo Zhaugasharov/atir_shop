@@ -11,7 +11,9 @@ class Product extends Model {
 
     protected $table = 'product';
 
-    protected $fillable = ['name', 'article', 'image', 'gender', 'brand_id', 'quality', 'is_new'];
+    protected $fillable = ['name', 'article', 'image', 'gender', 'brand_id', 'is_new'];
+
+    protected $appends = ['image_url'];
 
     protected $dates = ['deleted_at'];
 
@@ -33,7 +35,7 @@ class Product extends Model {
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return asset($this->image);
         }
         return asset('images/default.jpg'); // Дефолтное изображение
     }
