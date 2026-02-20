@@ -1,31 +1,40 @@
 @foreach($products as $product)
-    <div id="product_{{$product->id}}" product-id="{{$product->id}}}" class="col-md-4 mb-4 card-item">
-        <div class="card h-100 shadow-sm">
-            <img id="product_img_{{$product->id}}" src="{{ $product->image_url }}"
-                 class="card-img-top"
-                 style="height:220px; object-fit:cover"
-                 alt="{{ $product->name }}">
-
-            <div class="card-body">
-                <h5 id="product_title_{{$product->id}}" class="card-title">{{ $product->name }}</h5>
-                <p class="card-text small">
-                    <span><strong>{{__('messages.article')}}:</strong> {{ $product->article ?? '' }}</span><br/>
-                    <span><strong>{{__('messages.gender')}}:</strong> {{ $product->gender ? __('messages.'.$product->gender): '' }}</span>
-                </p>
-                <p class="card-text">
-                    @if($product->keywords->count() > 0)
-                        @foreach($product->keywords as $keyword)
-                            <span class="badge bg-secondary">{{ $keyword->name }}</span>
-                        @endforeach
-                    @endif
-                </p>
-            </div>
-            <div class="card-body">
-                @if(empty($homePage))
-                    <button type="button" product-id="{{$product->id}}" class="product-add float-end btn btn-outline-success"><i class="fa fa-plus"></i>{{__('messages.select')}}</button>
-                @else
-                    <a style="width: 150px" class="btn btn-danger" href="https://kaspi.kz/shop/p/c-{{ $product->article ?? '' }}" target="_blank">Kaspi</a>
+    <div id="product_{{$product->id}}" product-id="{{$product->id}}" class="col-md-6 mb-3 card-item">
+        <div class="product-card">
+            <div class="product-card__image">
+                <img id="product_img_{{$product->id}}" src="{{ $product->image_url }}" alt="{{ $product->name }}">
+                @if($product->is_new)
+                    <span class="product-card__new-flag">{{__('messages.novelties')}}</span>
                 @endif
+                <span class="product-card__badge">{{ $product->article ?? '' }}</span>
+                @if($product->quality)
+                    <span class="product-card__type">{{ $product->quality == 'premium' ? __('messages.premium') : __('messages.top') }}</span>
+                @elseif($product->gender)
+                    <span class="product-card__type">{{ __('messages.'.$product->gender) }}</span>
+                @endif
+            </div>
+            <div class="product-card__info">
+                <h5 id="product_title_{{$product->id}}" class="product-card__name">{{ $product->name }}</h5>
+                @if($product->brand)
+                    <p class="product-card__brand">{{ $product->brand->name }}</p>
+                @endif
+                @if($product->keywords->count() > 0)
+                    <p class="product-card__keywords">
+                        {{ $product->keywords->pluck('name')->implode(', ') }}
+                    </p>
+                @endif
+                <div class="product-card__tags">
+                    @foreach($product->keywords as $keyword)
+                        <span class="product-card__tag">{{ $keyword->name }}</span>
+                    @endforeach
+                </div>
+                <div class="product-card__actions">
+                    @if(empty($homePage))
+                        <button type="button" product-id="{{$product->id}}" class="product-add btn-fragrancia-select">
+                            <i class="bi bi-plus-circle"></i> <span>{{__('messages.select')}}</span>
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

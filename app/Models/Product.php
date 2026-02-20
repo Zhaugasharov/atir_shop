@@ -11,13 +11,22 @@ class Product extends Model {
 
     protected $table = 'product';
 
-    protected $fillable = ['name', 'article', 'image', 'gender'];
+    protected $fillable = ['name', 'article', 'image', 'gender', 'brand_id', 'quality', 'is_new'];
 
     protected $dates = ['deleted_at'];
+
+    protected $casts = [
+        'is_new' => 'boolean',
+    ];
 
     public function keywords()
     {
         return $this->belongsToMany(KeyWord::class, 'product_keyword', 'product_id', 'keyword_id');
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
     // Аксессор для получения URL изображения

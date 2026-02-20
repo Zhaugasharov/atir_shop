@@ -18,4 +18,13 @@ return [
     'remove' => 'Remove',
     'order' => 'Order',
     'selectTT' => 'Choose 3 perfumes',
+    'filters_title' => 'Filters',
+    'brand' => 'Brand',
+    'gender_label' => 'Gender',
+    'quality_label' => 'Quality',
+    'premium' => 'premium perfume',
+    'top' => 'top perfume',
+    'novelties' => 'New arrivals',
+    'apply' => 'APPLY',
+    'reset_filters' => 'RESET FILTERS',
 ];

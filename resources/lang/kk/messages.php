@@ -18,4 +18,13 @@ return [
     'remove' => 'Алып тастау',
     'order' => 'Тапсырыс беру',
     'selectTT' => '3 парфюм таңдаңыз',
+    'filters_title' => 'Сүзгілер',
+    'brand' => 'Бренд',
+    'gender_label' => 'Жынысы',
+    'quality_label' => 'Сапасы',
+    'premium' => 'премиум парфюм',
+    'top' => 'топ парфюм',
+    'novelties' => 'Жаңа',
+    'apply' => 'ҚОЛДАНУ',
+    'reset_filters' => 'СҮЗГІЛЕРДІ ТАЗАЛАУ',
 ];

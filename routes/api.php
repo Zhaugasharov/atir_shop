@@ -14,6 +14,8 @@ use App\Http\Controllers\ApiController;
 */
 Route::get('/get-key-words', 'ApiController@getKeyWords')->name('apiGetKeyWords');
 Route::get('/products', [ApiController::class, 'products'])->name('apiProducts');
+Route::get('/search-suggest', [ApiController::class, 'searchSuggest'])->name('apiSearchSuggest');
+Route::get('/brands', [ApiController::class, 'brands'])->name('apiBrands');
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

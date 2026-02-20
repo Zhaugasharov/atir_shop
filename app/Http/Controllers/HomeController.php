@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\KeyWord;
 use App\Models\Order;
 use App\Models\ProductKeyWord;
+use App\Models\Brand;
 
 class HomeController extends Controller
 {
@@ -48,7 +49,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query()->with('keywords');
+        $query = Product::query()->with(['keywords', 'brand']);
 
         // Фильтр по названию
         if ($request->has('name') && $request->name != '') {
@@ -71,6 +72,7 @@ class HomeController extends Controller
         }
 
         $data['products'] = $query->paginate(20);
+        $data['brands'] = Brand::orderBy('name')->get();
         $data['request'] = $request;
 
         return view('home', $data);
@@ -140,6 +142,9 @@ class HomeController extends Controller
             $articleIndex  = array_search('article', $header);
             $genderIndex   = array_search('gender', $header);
             $keywordsIndex = array_search('keywords', $header);
+            $brandIndex    = array_search('brand', $header);
+            $qualityIndex  = array_search('quality', $header);
+            $isNewIndex    = array_search('is_new', $header);
 
             $success = 0;
             $errors  = [];
@@ -167,11 +172,39 @@ class HomeController extends Controller
 
                     $keywords = $this->parseKeywords($keywordsRaw);
 
+                    // ---------- БРЕНД ----------
+                    $brandId = null;
+                    if ($brandIndex !== false) {
+                        $brandName = $this->cleanValue($row[$brandIndex] ?? '');
+                        if ($brandName !== '') {
+                            $brand = Brand::firstOrCreate(
+                                ['name' => $brandName]
+                            );
+                            $brandId = $brand->id;
+                        }
+                    }
+
+                    // ---------- КАЧЕСТВО ----------
+                    $quality = null;
+                    if ($qualityIndex !== false) {
+                        $quality = $this->parseQuality($row[$qualityIndex] ?? '');
+                    }
+
+                    // ---------- НОВИНКА ----------
+                    $isNew = false;
+                    if ($isNewIndex !== false) {
+                        $isNewVal = mb_strtolower(trim($row[$isNewIndex] ?? ''), 'UTF-8');
+                        $isNew = in_array($isNewVal, ['1', 'да', 'yes', 'true', '+']);
+                    }
+
                     // ---------- СОЗДАНИЕ ТОВАРА ----------
                     $product = Product::create([
-                        'name'    => $name,
-                        'article' => $article ?: null,
-                        'gender'  => $gender,
+                        'name'     => $name,
+                        'article'  => $article ?: null,
+                        'gender'   => $gender,
+                        'brand_id' => $brandId,
+                        'quality'  => $quality,
+                        'is_new'   => $isNew,
                     ]);
 
                     // ---------- КЛЮЧЕВЫЕ СЛОВА ----------
@@ -534,6 +567,31 @@ class HomeController extends Controller
     }
 
     /**
+     * Парсит значение качества
+     */
+    private function parseQuality($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $value = mb_strtolower(trim($value), 'UTF-8');
+
+        $premiumValues = ['premium', 'премиум', 'премиум парфюм', 'пр', 'p'];
+        $topValues = ['top', 'топ', 'топ парфюм', 'т', 't'];
+
+        if (in_array($value, $premiumValues) || mb_strpos($value, 'премиум') !== false) {
+            return 'premium';
+        }
+
+        if (in_array($value, $topValues) || mb_strpos($value, 'топ') !== false) {
+            return 'top';
+        }
+
+        return null;
+    }
+
+    /**
      * Парсит строку ключевых слов
      */
     private function parseKeywords($string)
@@ -565,50 +623,113 @@ class HomeController extends Controller
         return $keywords;
     }
 
+    public function brands(Request $request)
+    {
+        $query = Brand::query()->withCount('products');
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        $data['brands'] = $query->orderBy('name')->paginate(20);
+        $data['request'] = $request;
+
+        return view('brands', $data);
+    }
+
+    public function saveBrand(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $brand = Brand::find($request->brand_id);
+
+        if ($brand) {
+            $brand->update(['name' => $request->name]);
+            return redirect()->back()->with('success', 'Бренд успешно обновлен');
+        }
+
+        Brand::create(['name' => $request->name]);
+        return redirect()->back()->with('success', 'Бренд успешно создан');
+    }
+
+    public function deleteBrand($id)
+    {
+        $brand = Brand::find($id);
+
+        if (!$brand) {
+            return redirect()->back()->with('error', 'Бренд не найден!');
+        }
+
+        $brand->delete();
+        return redirect()->back()->with('success', 'Бренд успешно удален!');
+    }
+
     public function saveProduct(Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:100',
             'gender' => 'required|in:male,female,unisex',
-            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'brand_id' => 'nullable|exists:brands,id',
+            'quality' => 'nullable|in:premium,top',
+            'is_new' => 'nullable',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'cropped_image' => 'nullable|string',
             'keywords' => 'required|json'
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Получаем ключевые слова из JSON
             $keywords = json_decode($request->keywords, true);
 
-            // Проверяем, есть ли продукт с таким артикулом
             $product = Product::where('id', $request->product_id)->first();
 
             if ($product) {
-                // Обновляем существующий продукт
                 $product->update([
                     'name' => $request->name,
                     'gender' => $request->gender,
-                    'article' => $request->sku
+                    'article' => $request->sku,
+                    'brand_id' => $request->brand_id ?: null,
+                    'quality' => $request->quality ?: null,
+                    'is_new' => $request->has('is_new') ? 1 : 0,
                 ]);
             } else {
-                // Создаем новый продукт
                 $product = Product::create([
                     'name' => $request->name,
                     'article' => $request->sku,
                     'gender' => $request->gender,
+                    'brand_id' => $request->brand_id ?: null,
+                    'quality' => $request->quality ?: null,
+                    'is_new' => $request->has('is_new') ? 1 : 0,
                     'image' => null
                 ]);
             }
 
-            // Обработка изображения
-            if ($request->hasFile('image')) {
+            $hasNewImage = false;
 
-                // Удаляем старое изображение, если оно есть
+            if ($request->filled('cropped_image') && preg_match('/^data:image\/(\w+);base64,/', $request->cropped_image, $matches)) {
+                $hasNewImage = true;
+                $imageData = substr($request->cropped_image, strpos($request->cropped_image, ',') + 1);
+                $imageData = base64_decode($imageData);
+
                 if ($product->image) {
-                    Storage::delete($product->image);
+                    Storage::disk('public')->delete($product->image);
                 }
 
-                // Сохраняем новое изображение
+                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+                $filename = 'products/' . uniqid('crop_') . '.' . $extension;
+                Storage::disk('public')->put($filename, $imageData);
+                $product->image = $filename;
+                $product->save();
+            }
+
+            if (!$hasNewImage && $request->hasFile('image')) {
+                if ($product->image) {
+                    Storage::disk('public')->delete($product->image);
+                }
+
                 $imagePath = $request->file('image')->store('products', 'public');
                 $product->image = $imagePath;
                 $product->save();

@@ -18,4 +18,13 @@ return [
     'remove' => 'Убрать',
     'order' => 'Заказать',
     'selectTT' => 'Выберите 3 парфюма',
+    'filters_title' => 'Фильтры',
+    'brand' => 'Бренд',
+    'gender_label' => 'Пол',
+    'quality_label' => 'Качество',
+    'premium' => 'премиум парфюм',
+    'top' => 'топ парфюм',
+    'novelties' => 'Новинки',
+    'apply' => 'ПРИМЕНИТЬ',
+    'reset_filters' => 'СБРОСИТЬ ФИЛЬТРЫ',
 ];

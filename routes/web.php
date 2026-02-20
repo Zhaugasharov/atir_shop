@@ -34,3 +34,7 @@ Route::get('/orders', 'HomeController@order')->name('orders');
 Route::post('/save-product', 'HomeController@saveProduct')->name('saveProduct');
 Route::post('/save-products', 'HomeController@saveProducts')->name('saveProducts');
 Route::delete('/delete-product/{id}', 'HomeController@deleteProduct')->name('deleteProduct');
+
+Route::get('/brands', 'HomeController@brands')->name('brands');
+Route::post('/save-brand', 'HomeController@saveBrand')->name('saveBrand');
+Route::delete('/delete-brand/{id}', 'HomeController@deleteBrand')->name('deleteBrand');

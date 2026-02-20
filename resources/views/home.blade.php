@@ -11,6 +11,7 @@
                             <div class="list-group list-group-flush">
                                 <a href="{{url('home')}}" class="list-group-item list-group-item-action selected">Товары</a>
                                 <a href="{{url('orders')}}" class="list-group-item list-group-item-action">Заказы</a>
+                                <a href="{{url('brands')}}" class="list-group-item list-group-item-action">Бренды</a>
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -70,25 +71,80 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group">
-                                                <label>Для кого</label>
-                                                <select name="gender" class="form-control" id="productGender">
-                                                    <option value="male" {{ old('gender', 'male') == 'male' ? 'selected' : '' }}>Мужской</option>
-                                                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Женский</option>
-                                                    <option value="unisex" {{ old('gender') == 'unisex' ? 'selected' : '' }}>Унисекс</option>
-                                                </select>
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label>Для кого</label>
+                                                    <select name="gender" class="form-control" id="productGender">
+                                                        <option value="male" {{ old('gender', 'male') == 'male' ? 'selected' : '' }}>Мужской</option>
+                                                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Женский</option>
+                                                        <option value="unisex" {{ old('gender') == 'unisex' ? 'selected' : '' }}>Унисекс</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label>Бренд</label>
+                                                    <select name="brand_id" class="form-control" id="productBrand">
+                                                        <option value="">-- Не выбран --</option>
+                                                        @foreach($brands as $brand)
+                                                            <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label>Качество</label>
+                                                    <select name="quality" class="form-control" id="productQuality">
+                                                        <option value="">-- Не выбрано --</option>
+                                                        <option value="premium" {{ old('quality') == 'premium' ? 'selected' : '' }}>Премиум парфюм</option>
+                                                        <option value="top" {{ old('quality') == 'top' ? 'selected' : '' }}>Топ парфюм</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-6 d-flex align-items-end">
+                                                    <div class="custom-control custom-checkbox mb-2">
+                                                        <input type="checkbox" class="custom-control-input" id="productIsNew" name="is_new" value="1" {{ old('is_new') ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="productIsNew">Новинка</label>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="form-group">
                                                 <label>Картинка</label>
                                                 <input type="file"
-                                                       name="image"
                                                        class="form-control-file"
                                                        accept="image/*"
-                                                       id="productImage">
+                                                       id="productImageFile">
+                                                <input type="hidden" name="cropped_image" id="croppedImageData">
                                                 <small class="form-text text-muted">
                                                     Оставьте пустым, чтобы оставить текущее изображение
                                                 </small>
+
+                                                <div id="cropperContainer" class="mt-3" style="display:none;">
+                                                    <div class="img-container" style="max-height:400px; overflow:hidden;">
+                                                        <img id="cropperImage" src="" style="max-width:100%; display:block;">
+                                                    </div>
+                                                    <div class="btn-group btn-group-sm mt-2" role="group">
+                                                        <button type="button" class="btn btn-outline-secondary" id="cropRotateLeft" title="Повернуть влево">
+                                                            ↺ -90°
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" id="cropRotateRight" title="Повернуть вправо">
+                                                            ↻ +90°
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" id="cropZoomIn" title="Увеличить">
+                                                            🔍+
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" id="cropZoomOut" title="Уменьшить">
+                                                            🔍−
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" id="cropReset" title="Сбросить">
+                                                            ↩ Сброс
+                                                        </button>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-info">Перетаскивайте рамку для обрезки. Используйте колёсико мыши для масштабирования.</small>
+                                                    </div>
+                                                </div>
+
                                                 <div id="currentImage" class="mt-2"></div>
                                             </div>
 
@@ -163,7 +219,6 @@
                                         <div class="card h-100 shadow-sm">
                                             <img src="{{ $product->image_url }}"
                                                  class="card-img-top"
-                                                 style="height:220px; object-fit:cover"
                                                  alt="{{ $product->name }}">
 
                                             <div class="card-body d-flex flex-column">
@@ -202,6 +257,21 @@
                                                     @endif
                                                 </p>
 
+                                                @if($product->brand)
+                                                    <p class="small"><strong>Бренд:</strong> {{ $product->brand->name }}</p>
+                                                @endif
+
+                                                @if($product->quality)
+                                                    <p class="small">
+                                                        <strong>Качество:</strong>
+                                                        {{ $product->quality == 'premium' ? 'Премиум парфюм' : 'Топ парфюм' }}
+                                                    </p>
+                                                @endif
+
+                                                @if($product->is_new)
+                                                    <span class="badge badge-success">Новинка</span>
+                                                @endif
+
                                                 @if($product->keywords->count() > 0)
                                                     <div class="mb-2">
                                                         <strong>Ключевые слова:</strong>
@@ -237,8 +307,8 @@
 <script>
 $(document).ready(function() {
     let keywords = [];
+    let cropper = null;
 
-    // Инициализация
     function initKeywords() {
         const keywordsInput = $('#keywordsInput');
         if (keywordsInput.val()) {
@@ -254,12 +324,10 @@ $(document).ready(function() {
         }
     }
 
-    // Обновление скрытого поля
     function updateKeywordsInput() {
         $('#keywordsInput').val(JSON.stringify(keywords));
     }
 
-    // Создание элемента тега
     function createTagElement(keyword) {
         return $('<div>', {
             class: 'breadcrumb-tag',
@@ -267,26 +335,20 @@ $(document).ready(function() {
         });
     }
 
-    // Добавление ключевого слова
     function addKeyword(keyword) {
         keyword = $.trim(keyword);
-
         if (keyword && $.inArray(keyword, keywords) === -1) {
             keywords.push(keyword);
             const tagElement = createTagElement(keyword);
             $('#tagsContainer').append(tagElement);
             updateKeywordsInput();
-
-            // Добавляем обработчик удаления
             tagElement.find('.close').click(function(e) {
                 e.stopPropagation();
-                const keywordToRemove = $(this).data('keyword');
-                removeKeyword(keywordToRemove);
+                removeKeyword($(this).data('keyword'));
             });
         }
     }
 
-    // Удаление ключевого слова
     function removeKeyword(keyword) {
         const index = $.inArray(keyword, keywords);
         if (index !== -1) {
@@ -296,24 +358,106 @@ $(document).ready(function() {
         }
     }
 
-    // Обновление отображения тегов
     function updateTagsDisplay() {
         $('#tagsContainer').empty();
         keywords.forEach(function(keyword) {
             const tagElement = createTagElement(keyword);
             $('#tagsContainer').append(tagElement);
-
-            // Добавляем обработчик удаления
             tagElement.find('.close').click(function(e) {
                 e.stopPropagation();
-                const keywordToRemove = $(this).data('keyword');
-                removeKeyword(keywordToRemove);
+                removeKeyword($(this).data('keyword'));
             });
         });
         updateKeywordsInput();
     }
 
-    // Обработчик ввода тегов
+    // --- Cropper.js ---
+    function destroyCropper() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        $('#cropperContainer').hide();
+        $('#croppedImageData').val('');
+    }
+
+    function initCropper(imageUrl) {
+        destroyCropper();
+        var $img = $('#cropperImage');
+        $img.attr('src', imageUrl);
+        $('#cropperContainer').show();
+
+        $img.on('load', function() {
+            $(this).off('load');
+            cropper = new Cropper(this, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.9,
+                responsive: true,
+                restore: true,
+                guides: true,
+                center: true,
+                highlight: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: true,
+            });
+        });
+
+        if ($img[0].complete && $img[0].naturalWidth > 0) {
+            $img.trigger('load');
+        }
+    }
+
+    $('#productImageFile').on('change', function() {
+        var files = this.files;
+        if (!files || !files.length) {
+            destroyCropper();
+            return;
+        }
+
+        var file = files[0];
+        var allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Допустимы только изображения (JPEG, PNG, JPG, GIF, WEBP)');
+            this.value = '';
+            destroyCropper();
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Файл слишком большой. Максимальный размер: 10MB');
+            this.value = '';
+            destroyCropper();
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            initCropper(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    $('#cropRotateLeft').on('click', function() { if (cropper) cropper.rotate(-90); });
+    $('#cropRotateRight').on('click', function() { if (cropper) cropper.rotate(90); });
+    $('#cropZoomIn').on('click', function() { if (cropper) cropper.zoom(0.1); });
+    $('#cropZoomOut').on('click', function() { if (cropper) cropper.zoom(-0.1); });
+    $('#cropReset').on('click', function() { if (cropper) cropper.reset(); });
+
+    function getCroppedDataUrl() {
+        if (!cropper) return null;
+        var canvas = cropper.getCroppedCanvas({
+            width: 800,
+            height: 800,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        if (!canvas) return null;
+        return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    // --- Tags ---
     $('#tagInput').on('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -322,7 +466,6 @@ $(document).ready(function() {
         }
     });
 
-    // Обработчик blur для тегов
     $('#tagInput').on('blur', function() {
         if ($.trim($(this).val())) {
             addKeyword($(this).val());
@@ -330,67 +473,70 @@ $(document).ready(function() {
         }
     });
 
-    // Фокус на поле ввода тегов при клике на контейнер
     $('#tagsWrapper').on('click', function(e) {
         if (e.target === this || e.target === $('#tagsContainer')[0]) {
             $('#tagInput').focus();
         }
     });
 
-    // Редактирование продукта
+    // --- Edit product ---
     $(document).on('click', '.edit-product-btn', function() {
         const product = $(this).data('product');
         if (!product) return;
+
+        destroyCropper();
+        $('#productImageFile').val('');
 
         $('#productId').val(product.id);
         $('#productName').val(product.name);
         $('#productSku').val(product.article || '');
         $('#productGender').val(product.gender);
+        $('#productBrand').val(product.brand_id || '');
+        $('#productQuality').val(product.quality || '');
+        $('#productIsNew').prop('checked', !!product.is_new);
         $('#modalTitle').text('Редактировать товар');
 
-        // Текущее изображение
         const currentImageDiv = $('#currentImage');
         if (product.image) {
-            currentImageDiv.html(`
-                <strong>Текущее изображение:</strong><br>
-                <img src="${product.image}"
-                     class="img-thumbnail mt-1"
-                     style="max-height: 100px;">
-            `);
+            currentImageDiv.html(
+                '<strong>Текущее изображение:</strong><br>' +
+                '<img src="' + product.image + '" class="img-thumbnail mt-1" style="max-height:100px;">'
+            );
         } else {
             currentImageDiv.html('<strong>Нет изображения</strong>');
         }
 
-        // Ключевые слова
         keywords = product.keywords ? product.keywords.map(k => k.name) : [];
         updateTagsDisplay();
 
-        // Фокус на поле ввода
-        setTimeout(() => {
-            $('#tagInput').focus();
-        }, 500);
+        setTimeout(() => { $('#tagInput').focus(); }, 500);
     });
 
-    // Добавление нового продукта
+    // --- Add product ---
     $('#addProductBtn').click(function() {
+        destroyCropper();
+        $('#productImageFile').val('');
+
         $('#productForm')[0].reset();
         $('#productId').val('');
         $('#productName').val('');
         $('#productSku').val('');
+        $('#productBrand').val('');
+        $('#productQuality').val('');
+        $('#productIsNew').prop('checked', false);
         $('#modalTitle').text('Добавить товар');
         $('#currentImage').empty();
 
         keywords = [];
         updateTagsDisplay();
 
-        setTimeout(() => {
-            $('#productName').focus();
-        }, 500);
+        setTimeout(() => { $('#productName').focus(); }, 500);
     });
 
-    // Очистка формы при закрытии модального окна
+    // --- Close modal ---
     $('#productModal').on('hidden.bs.modal', function() {
-        // Очищаем только если это не редактирование
+        destroyCropper();
+        $('#productImageFile').val('');
         if (!$('#productId').val()) {
             keywords = [];
             $('#tagsContainer').empty();
@@ -399,46 +545,60 @@ $(document).ready(function() {
         }
     });
 
-    // Обработка отправки формы
+    // --- Form submit ---
     $('#productForm').on('submit', function(e) {
-        // Простая валидация
+        e.preventDefault();
+
         if (!$('#productName').val().trim()) {
-            e.preventDefault();
             alert('Пожалуйста, введите название товара');
             $('#productName').focus();
             return false;
         }
 
-        // Проверка файла (если выбран)
-        const fileInput = $('#productImage')[0];
-        if (fileInput && fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const maxSize = 2 * 1024 * 1024; // 2MB
-
-            if (file.size > maxSize) {
-                e.preventDefault();
-                alert('Файл слишком большой. Максимальный размер: 2MB');
-                return false;
-            }
-
-            // Проверка типа файла
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-            if (!allowedTypes.includes(file.type)) {
-                e.preventDefault();
-                alert('Допустимы только изображения (JPEG, PNG, JPG, GIF)');
-                return false;
-            }
-        }
-
-        // Показываем индикатор загрузки
-        const submitBtn = $('#submitBtn');
+        var submitBtn = $('#submitBtn');
         submitBtn.html('<span class="spinner-border spinner-border-sm"></span> Сохранение...');
         submitBtn.prop('disabled', true);
 
-        // Форма отправится нормально
+        if (cropper) {
+            var dataUrl = getCroppedDataUrl();
+            $('#croppedImageData').val(dataUrl);
+        }
+
+        var formData = new FormData(this);
+
+        formData.delete('image');
+        var fileInput = $('#productImageFile')[0];
+        if (!cropper && fileInput && fileInput.files.length > 0) {
+            formData.append('image', fileInput.files[0]);
+        }
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function() {
+                window.location.reload();
+            },
+            error: function(xhr) {
+                submitBtn.html('Сохранить');
+                submitBtn.prop('disabled', false);
+
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors;
+                    var messages = [];
+                    for (var field in errors) {
+                        messages.push(errors[field].join(', '));
+                    }
+                    alert('Ошибки валидации:\n' + messages.join('\n'));
+                } else {
+                    alert('Ошибка при сохранении товара');
+                }
+            }
+        });
     });
 
-    // Инициализация ключевых слов при загрузке
     initKeywords();
 });
 </script>
@@ -464,6 +624,26 @@ $(document).ready(function() {
 }
 .breadcrumb-tag .close:hover {
     opacity: 1;
+}
+.img-container {
+    max-height: 400px;
+    background: #f0f0f0;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.img-container img {
+    display: block;
+    max-width: 100%;
+}
+#cropperContainer .btn-group .btn {
+    font-size: 12px;
+}
+.card-img-top {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    object-position: center;
 }
 </style>
 @endsection

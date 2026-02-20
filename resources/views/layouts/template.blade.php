@@ -14,6 +14,68 @@
         {{-- Your custom CSS --}}
         <style>
             .cursor-pointer { cursor: pointer; }
+
+            .navbar { padding: 8px 0; }
+            .navbar-brand img {
+                width: 150px;
+                height: 150px;
+                transition: all 0.2s;
+            }
+
+            .lang-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: none;
+                border: none;
+                padding: 6px 10px;
+                font-size: 14px;
+                font-weight: 500;
+                color: #333;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background 0.15s;
+            }
+
+            .lang-btn:hover,
+            .lang-btn:focus {
+                background: #f0f0f0;
+                outline: none;
+                box-shadow: none;
+            }
+
+            .lang-btn::after {
+                font-size: 10px;
+            }
+
+            .lang-flag {
+                width: 22px;
+                height: 16px;
+                object-fit: cover;
+                border-radius: 2px;
+                vertical-align: middle;
+                box-shadow: 0 0 1px rgba(0,0,0,.2);
+            }
+
+            .lang-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .lang-item:hover {
+                background: #f8f8f8;
+            }
+
+            @media (max-width: 768px) {
+                .navbar-brand img {
+                    width: 60px;
+                    height: 60px;
+                }
+                .navbar { padding: 4px 0; }
+            }
         </style>
 
         @yield('style')
@@ -29,13 +91,19 @@
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    {{ strtoupper(app()->getLocale()) }}
+                                <button class="lang-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    @if(app()->getLocale() === 'ru')
+                                        <img class="lang-flag" src="https://flagcdn.com/w40/ru.png" alt="RU"> RU
+                                    @elseif(app()->getLocale() === 'en')
+                                        <img class="lang-flag" src="https://flagcdn.com/w40/gb.png" alt="EN"> EN
+                                    @else
+                                        <img class="lang-flag" src="https://flagcdn.com/w40/kz.png" alt="KK"> KK
+                                    @endif
                                 </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'ru') }}">Русский</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'en') }}">English</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('lang.switch', 'kz') }}">Қазақша</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item lang-item" href="{{ route('lang.switch', 'ru') }}"><img class="lang-flag" src="https://flagcdn.com/w40/ru.png" alt="RU"> Русский</a></li>
+                                    <li><a class="dropdown-item lang-item" href="{{ route('lang.switch', 'en') }}"><img class="lang-flag" src="https://flagcdn.com/w40/gb.png" alt="EN"> English</a></li>
+                                    <li><a class="dropdown-item lang-item" href="{{ route('lang.switch', 'kz') }}"><img class="lang-flag" src="https://flagcdn.com/w40/kz.png" alt="KK"> Қазақша</a></li>
                                 </ul>
                             </div>
                         </li>

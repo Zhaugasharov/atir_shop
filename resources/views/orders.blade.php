@@ -9,8 +9,9 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="list-group list-group-flush">
-                                <a href="{{url('home')}}" class="list-group-item list-group-item-action selected">Товары</a>
-                                <a href="{{url('orders')}}" class="list-group-item list-group-item-action">Заказы</a>
+                                <a href="{{url('home')}}" class="list-group-item list-group-item-action">Товары</a>
+                                <a href="{{url('orders')}}" class="list-group-item list-group-item-action selected">Заказы</a>
+                                <a href="{{url('brands')}}" class="list-group-item list-group-item-action">Бренды</a>
                             </div>
                         </div>
                         <div class="col-md-9">
