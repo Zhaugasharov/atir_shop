@@ -30,7 +30,7 @@
                 </div>
                 <div class="product-card__actions">
                     @if(empty($homePage))
-                        <button type="button" product-id="{{$product->id}}" class="product-add btn-fragrancia-select">
+                        <button type="button" product-id="{{$product->id}}" class="product-add float-end btn-fragrancia-select">
                             <i class="bi bi-plus-circle"></i> <span>{{__('messages.select')}}</span>
                         </button>
                     @endif
