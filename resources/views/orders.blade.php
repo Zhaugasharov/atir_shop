@@ -8,11 +8,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="list-group list-group-flush">
-                                <a href="{{url('home')}}" class="list-group-item list-group-item-action">Товары</a>
-                                <a href="{{url('orders')}}" class="list-group-item list-group-item-action selected">Заказы</a>
-                                <a href="{{url('brands')}}" class="list-group-item list-group-item-action">Бренды</a>
-                            </div>
+                            @include('partials.admin-sidebar', ['active' => 'orders'])
                         </div>
                         <div class="col-md-9">
                             <h4>Заказы</h4>
@@ -21,10 +17,10 @@
                                 <div class="form-row">
                                     <div class="col-md-6">
                                         <input type="text"
-                                               name="name"
+                                               name="query"
                                                class="form-control"
                                                placeholder="Номер заказа или номер телефона"
-                                               value="{{ request('name') }}">
+                                               value="{{ request('query') }}">
                                     </div>
                                     <div class="col-md-3">
                                         <select name="status" class="form-control">
@@ -58,21 +54,27 @@
                                             <td>{{$order->phone}}</td>
                                             <td>{{$order->getStatus()}}</td>
                                             <td width="250px">
-                                                @if(!empty($order->product1->name))
+                                                @if($order->product1 && !empty($order->product1->name))
                                                     <p>{{$order->product1->name}}</p>
                                                     <img width="100%" src="{{$order->product1->image_url}}" />
+                                                @else
+                                                    —
                                                 @endif
                                             </td>
                                             <td width="250px">
-                                                @if(!empty($order->product2->name))
+                                                @if($order->product2 && !empty($order->product2->name))
                                                     <p>{{$order->product2->name}}</p>
                                                     <img width="100%" src="{{$order->product2->image_url}}" />
+                                                @else
+                                                    —
                                                 @endif
                                             </td>
                                             <td width="250px">
-                                                @if(!empty($order->product3->name))
+                                                @if($order->product3 && !empty($order->product3->name))
                                                     <p>{{$order->product3->name}}</p>
                                                     <img width="100%" src="{{$order->product3->image_url}}" />
+                                                @else
+                                                    —
                                                 @endif
                                             </td>
                                         </tr>

@@ -37,4 +37,9 @@ class Order extends Model {
     {
         return $this->hasOne(Product::class, 'id', 'product_id_3');
     }
+
+    public function broadcastMessages()
+    {
+        return $this->hasMany(BroadcastMessage::class);
+    }
 }

@@ -8,11 +8,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="list-group list-group-flush">
-                                <a href="{{url('home')}}" class="list-group-item list-group-item-action selected">Товары</a>
-                                <a href="{{url('orders')}}" class="list-group-item list-group-item-action">Заказы</a>
-                                <a href="{{url('brands')}}" class="list-group-item list-group-item-action">Бренды</a>
-                            </div>
+                            @include('partials.admin-sidebar', ['active' => 'home'])
                         </div>
                         <div class="col-md-9">
                             <h4>Товары</h4>

@@ -38,3 +38,9 @@ Route::delete('/delete-product/{id}', 'HomeController@deleteProduct')->name('del
 Route::get('/brands', 'HomeController@brands')->name('brands');
 Route::post('/save-brand', 'HomeController@saveBrand')->name('saveBrand');
 Route::delete('/delete-brand/{id}', 'HomeController@deleteBrand')->name('deleteBrand');
+
+Route::get('/broadcasts', [\App\Http\Controllers\BroadcastMessageController::class, 'index'])->name('broadcasts');
+Route::get('/message-templates', [\App\Http\Controllers\MessageTemplateController::class, 'index'])->name('message-templates.index');
+Route::post('/message-templates', [\App\Http\Controllers\MessageTemplateController::class, 'store'])->name('message-templates.store');
+Route::post('/message-templates/send-test', [\App\Http\Controllers\MessageTemplateController::class, 'sendTest'])->name('message-templates.send-test');
+Route::post('/message-templates/{id}/set-default', [\App\Http\Controllers\MessageTemplateController::class, 'setDefault'])->name('message-templates.set-default');

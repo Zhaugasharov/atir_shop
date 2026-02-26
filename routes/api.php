@@ -20,3 +20,5 @@ Route::get('/brands', [ApiController::class, 'brands'])->name('apiBrands');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::match(['get', 'post'], '/whatsapp/webhook', [\App\Http\Controllers\WhatsAppWebhookController::class, 'handle']);

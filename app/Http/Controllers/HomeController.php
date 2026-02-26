@@ -83,8 +83,11 @@ class HomeController extends Controller
         $orderModel = Order::query();
 
         if ($request->filled('query')) {
-            $orderModel->where('order_id', 'like', '%' . $request->query . '%')
-                        ->orWhere('phone', 'like', '%' . $request->query . '%');
+            $q = $request->input('query');
+            $orderModel->where(function ($query) use ($q) {
+                $query->where('order_id', 'like', '%' . $q . '%')
+                    ->orWhere('phone', 'like', '%' . $q . '%');
+            });
         }
 
         if ($request->filled('status'))
