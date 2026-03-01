@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\BroadcastMessage;
-use App\Models\MessageTemplate;
 use App\Models\Order;
+use App\Models\WhatsappTemplateSetting;
 use App\Services\KaspiApiService;
 use App\Services\WhatsAppService;
 use Illuminate\Console\Command;
@@ -26,8 +26,8 @@ class FetchKaspiOrdersCommand extends Command
             return Command::SUCCESS;
         }
 
-        $template = MessageTemplate::getDefault();
-        if (!$template) {
+        $defaultTemplate = WhatsappTemplateSetting::getDefaultTemplate();
+        if (!$defaultTemplate) {
             $this->warn('No message template configured. Skipping WhatsApp notifications.');
         }
 
@@ -38,6 +38,11 @@ class FetchKaspiOrdersCommand extends Command
             }
 
             if (Order::where('order_id', $kaspiId)->exists()) {
+                continue;
+            }
+
+            $requiredProductId = config('services.kaspi.required_product_id', '143860110');
+            if (!$kaspiService->orderContainsProduct($kaspiId, $requiredProductId)) {
                 continue;
             }
 
@@ -65,21 +70,34 @@ class FetchKaspiOrdersCommand extends Command
                 'product_id_3' => null,
             ]);
 
-            if ($template) {
-                $messageText = $template->render([
-                    'order_id' => $code,
-                    'order_link' => url('/order/' . $kaspiId),
-                    'total_price' => number_format($totalPrice, 0, '', ' '),
-                    'customer_name' => trim($firstName . ' ' . $lastName),
-                    'phone' => $phone,
-                ]);
+            if ($defaultTemplate) {
+                $bodyParams = [
+                    $code,
+                    number_format($totalPrice, 0, '', ' '),
+                    trim($firstName . ' ' . $lastName),
+                    url('/order/' . $kaspiId),
+                ];
 
-                $wabaMessageId = $whatsappService->sendMessage($phone, $messageText);
+                $result = $whatsappService->sendTemplateMessage(
+                    $phone,
+                    $defaultTemplate['name'],
+                    $defaultTemplate['language'],
+                    $bodyParams
+                );
+                $wabaMessageId = $result['message_id'];
+
+                $messagePreview = sprintf(
+                    'Шаблон %s: заказ %s, %s тг, %s',
+                    $defaultTemplate['name'],
+                    $code,
+                    number_format($totalPrice, 0, '', ' '),
+                    trim($firstName . ' ' . $lastName)
+                );
 
                 BroadcastMessage::create([
                     'order_id' => $order->id,
                     'phone' => $phone,
-                    'message' => $messageText,
+                    'message' => $messagePreview,
                     'waba_message_id' => $wabaMessageId,
                     'delivery_status' => BroadcastMessage::STATUS_SENT,
                     'source' => BroadcastMessage::SOURCE_KASPI,

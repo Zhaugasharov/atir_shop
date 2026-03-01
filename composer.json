@@ -10,7 +10,8 @@
         "laravel/tinker": "^2.8",
         "maatwebsite/excel": "^3.0",
         "laravel/ui": "^4.6",
-        "fruitcake/laravel-cors": "dev-develop"
+        "fruitcake/laravel-cors": "dev-develop",
+        "guzzlehttp/guzzle": "7.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.21",

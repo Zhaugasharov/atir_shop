@@ -37,10 +37,12 @@ return [
     'kaspi' => [
         'api_url' => 'https://kaspi.kz/shop/api/v2/orders',
         'token' => env('KASPI_AUTH_TOKEN'),
+        'required_product_id' => env('KASPI_REQUIRED_PRODUCT_ID', '143860110'),
     ],
 
     'whatsapp' => [
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
         'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
         'owner_phone' => env('OWNER_PHONE'),
         'verify_token' => env('WHATSAPP_VERIFY_TOKEN', 'atir_webhook_verify'),

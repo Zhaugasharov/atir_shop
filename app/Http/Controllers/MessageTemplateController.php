@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MessageTemplate;
+use App\Models\WhatsappTemplateSetting;
+use App\Services\MetaWhatsAppTemplateService;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 
@@ -13,75 +14,146 @@ class MessageTemplateController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(MetaWhatsAppTemplateService $metaService)
     {
-        $templates = MessageTemplate::orderBy('name')->get();
-        return view('message-templates.index', ['templates' => $templates]);
+        $result = $metaService->listTemplates();
+        $templates = $result['data'] ?? [];
+        $error = $result['error'] ?? null;
+
+        $defaultTemplate = WhatsappTemplateSetting::getDefaultTemplate();
+
+        return view('message-templates.index', [
+            'templates' => $templates,
+            'defaultTemplate' => $defaultTemplate,
+            'apiError' => $error,
+            'metaConfigured' => $metaService->isConfigured(),
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, MetaWhatsAppTemplateService $metaService)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:512|regex:/^[a-z0-9_]+$/i',
+            'language' => 'required|string|size:2',
+            'category' => 'required|in:UTILITY,MARKETING,AUTHENTICATION',
             'body' => 'required|string',
+            'body_example' => 'required|string',
             'is_default' => 'nullable|boolean',
+            'edit_name' => 'nullable|string',
+            'edit_language' => 'nullable|string',
         ]);
 
-        $template = MessageTemplate::find($request->template_id);
+        $editName = $request->edit_name;
+        $editLanguage = $request->edit_language;
 
-        if ($template) {
-            $template->update([
-                'name' => $request->name,
-                'body' => $request->body,
-                'is_default' => $request->boolean('is_default'),
-            ]);
-            MessageTemplate::where('id', '!=', $template->id)->update(['is_default' => false]);
-            return redirect()->route('message-templates.index')->with('success', 'Шаблон обновлен');
+        if ($editName && $editLanguage) {
+            $deleteResult = $metaService->deleteTemplate($editName);
+            if (!empty($deleteResult['error'])) {
+                $errMsg = $deleteResult['error']['error']['message'] ?? json_encode($deleteResult['error']);
+                return redirect()->route('message-templates.index')
+                    ->with('error', 'Не удалось удалить старый шаблон: ' . $errMsg);
+            }
         }
 
-        $template = MessageTemplate::create([
+        $exampleParts = array_map('trim', explode('|', $request->body_example));
+        $exampleParts = array_filter($exampleParts);
+
+        $components = [
+            [
+                'type' => 'BODY',
+                'text' => $request->body,
+                'example' => [
+                    'body_text' => [$exampleParts],
+                ],
+            ],
+        ];
+
+        $payload = [
             'name' => $request->name,
-            'body' => $request->body,
-            'is_default' => $request->boolean('is_default'),
-        ]);
-        if ($request->boolean('is_default')) {
-            MessageTemplate::where('id', '!=', $template->id)->update(['is_default' => false]);
+            'language' => $request->language,
+            'category' => $request->category,
+            'components' => $components,
+        ];
+
+        $result = $metaService->createTemplate($payload);
+
+        if (!empty($result['error'])) {
+            $errMsg = $result['error']['error']['message'] ?? json_encode($result['error']);
+            return redirect()->route('message-templates.index')
+                ->with('error', 'Не удалось создать шаблон: ' . $errMsg);
         }
-        return redirect()->route('message-templates.index')->with('success', 'Шаблон создан');
+
+        if ($request->boolean('is_default')) {
+            WhatsappTemplateSetting::setDefaultTemplate($request->name, $request->language);
+        }
+
+        return redirect()->route('message-templates.index')
+            ->with('success', 'Шаблон создан. Статус: ' . ($result['status'] ?? 'PENDING') . '. Ожидайте модерации Meta.');
     }
 
-    public function setDefault($id)
+    public function setDefault(Request $request)
     {
-        MessageTemplate::query()->update(['is_default' => false]);
-        $template = MessageTemplate::findOrFail($id);
-        $template->update(['is_default' => true]);
+        $request->validate([
+            'name' => 'required|string|max:512',
+            'language' => 'required|string|max:10',
+        ]);
+
+        WhatsappTemplateSetting::setDefaultTemplate($request->name, $request->language);
+
         return redirect()->route('message-templates.index')->with('success', 'Шаблон установлен по умолчанию');
+    }
+
+    public function destroy(string $name, MetaWhatsAppTemplateService $metaService)
+    {
+        $result = $metaService->deleteTemplate($name);
+
+        if (!empty($result['error'])) {
+            $errMsg = $result['error']['error']['message'] ?? json_encode($result['error']);
+            return redirect()->route('message-templates.index')
+                ->with('error', 'Не удалось удалить шаблон: ' . $errMsg);
+        }
+
+        $default = WhatsappTemplateSetting::getDefaultTemplate();
+        if ($default && $default['name'] === $name) {
+            WhatsappTemplateSetting::set(WhatsappTemplateSetting::KEY_DEFAULT_TEMPLATE_NAME, null);
+        }
+
+        return redirect()->route('message-templates.index')->with('success', 'Шаблон удален');
     }
 
     public function sendTest(Request $request, WhatsAppService $whatsappService)
     {
         $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
+            'template_name' => 'required|string|max:512',
+            'template_language' => 'required|string|max:10',
             'phone' => 'required|string|min:10',
+            'body_params' => 'nullable|string',
         ]);
 
-        $template = MessageTemplate::findOrFail($request->template_id);
-
-        $testData = [
-            'order_id' => 'TEST-123',
-            'order_link' => url('/order/TEST-123'),
-            'total_price' => '50 000',
-            'customer_name' => 'Тестовый клиент',
-            'phone' => $request->phone,
-        ];
-
-        $messageText = $template->render($testData);
-        $wabaMessageId = $whatsappService->sendMessage($request->phone, $messageText);
-
-        if ($wabaMessageId) {
-            return redirect()->route('message-templates.index')->with('success', 'Тестовое сообщение отправлено на ' . $request->phone);
+        $bodyParams = [];
+        if (!empty($request->body_params)) {
+            $bodyParams = array_map('trim', explode('|', $request->body_params));
+            $bodyParams = array_filter($bodyParams);
         }
 
-        return redirect()->route('message-templates.index')->with('error', 'Не удалось отправить сообщение. Проверьте настройки WhatsApp в .env');
+        $result = $whatsappService->sendTemplateMessage(
+            $request->phone,
+            $request->template_name,
+            $request->template_language,
+            $bodyParams
+        );
+
+        if ($result['message_id']) {
+            return redirect()->route('message-templates.index')
+                ->with('success', 'Тестовое сообщение отправлено на ' . $request->phone);
+        }
+
+        $errMsg = $result['error']['message'] ?? 'Unknown error';
+        if (!empty($result['error']['details'])) {
+            $errMsg .= ' — ' . $result['error']['details'];
+        }
+
+        return redirect()->route('message-templates.index')
+            ->with('error', 'Не удалось отправить сообщение: ' . $errMsg);
     }
 }
